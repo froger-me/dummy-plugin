@@ -4,13 +4,17 @@
  * Plugins and themes update library to enable with WP Plugin Update Server
  *
  * @author Alexandre Froger
- * @version 1.4.0
+ * @version 1.4.2
  * @see https://github.com/froger-me/wp-package-updater
  * @copyright Alexandre Froger - https://www.froger.me
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
+defined( 'ABSPATH' ) || exit; // Exit if accessed directly
+
+/**
+ * Since v5 all classes have been moved into namespaces
+ */
+use YahnisElsts\PluginUpdateChecker\v5p1\PucFactory;
+use YahnisElsts\PluginUpdateChecker\v5p1\Plugin\UpdateChecker;
 
 /* ================================================================================================ */
 /*                                     WP Package Updater                                           */
@@ -70,7 +74,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 	class WP_Package_Updater {
 
-		const VERSION = '1.0.2';
+		const VERSION = '1.0.4';
 
 		private $license_server_url;
 		private $package_slug;
@@ -80,6 +84,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		private $update_checker;
 		private $type;
 		private $use_license;
+		private $package_id;
 
 		public function __construct(
 			$update_server_url,
@@ -108,14 +113,14 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			$this->package_slug      = $package_slug;
 			$this->use_license       = $use_license;
 
-			if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+			if ( ! class_exists( 'PucFactory' ) ) {
 				require $this->package_path . 'lib/plugin-update-checker/plugin-update-checker.php';
 			}
 
 			$metadata_url  = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
 			$metadata_url .= rawurlencode( $this->package_slug );
 
-			$this->update_checker = Puc_v4_Factory::buildUpdateChecker( $metadata_url, $package_file_path );
+			$this->update_checker = PucFactory::buildUpdateChecker( $metadata_url, $package_file_path );
 
 			$this->set_type();
 
@@ -255,7 +260,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 			require_once $this->package_path . 'lib/wp-package-updater/templates/theme-page-license.php';
 
-			echo ob_get_clean(); // @codingStandardsIgnoreLine			
+			echo ob_get_clean(); // @codingStandardsIgnoreLine
 		}
 
 		public function print_license_under_plugin( $plugin_file = null, $plugin_data = null, $status = null ) {
@@ -290,15 +295,6 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				wp_send_json_error( $error );
 			}
 
-			// @todo remove in 2.0
-			if ( 'Theme' === $this->type ) {
-				delete_option( 'license_signature_' . $license_data->package_slug . '/functions.php' );
-				delete_option( 'license_key_' . $license_data->package_slug . '/functions.php' );
-			} else {
-				delete_option( 'license_signature_' . $license_data->package_slug . '/' . $license_data->package_slug . '.php' );
-				delete_option( 'license_key_' . $license_data->package_slug . '/' . $license_data->package_slug . '.php' );
-			}
-
 			delete_option( 'wppu_' . $this->package_slug . '_license_error' );
 			wp_send_json_success( $license_data );
 		}
@@ -323,15 +319,6 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				}
 
 				wp_send_json_error( $error );
-			}
-
-			// @todo remove in 2.0
-			if ( 'Theme' === $this->type ) {
-				delete_option( 'license_signature_' . $license_data->package_slug . '/functions.php' );
-				delete_option( 'license_key_' . $license_data->package_slug . '/functions.php' );
-			} else {
-				delete_option( 'license_signature_' . $license_data->package_slug . '/' . $license_data->package_slug . '.php' );
-				delete_option( 'license_key_' . $license_data->package_slug . '/' . $license_data->package_slug . '.php' );
 			}
 
 			wp_send_json_success( $license_data );
@@ -386,10 +373,13 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			);
 
 			$query    = esc_url_raw( add_query_arg( $api_params, $this->license_server_url ) );
-			$response = wp_remote_get( $query, array(
-				'timeout'   => 20,
-				'sslverify' => true,
-			) );
+			$response = wp_remote_get(
+				$query,
+				array(
+					'timeout'   => 20,
+					'sslverify' => true,
+				)
+			);
 
 			if ( is_wp_error( $response ) ) {
 				$license_data            = new stdClass();
@@ -434,34 +424,23 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				}
 			}
 
-			if (
-				isset( $license_data->status ) &&
-				'expired' === $license_data->status
-			) {
+			if ( isset( $license_data->status ) && 'expired' === $license_data->status ) {
+
 				if ( isset( $license_data->date_expiry ) ) {
 					$license_data->message = sprintf(
 						// translators: the license expiry date
 						__( 'The license expired on %s and needs to be renewed to be updated.', 'wp-package-updater' ),
-						date_i18n( get_option( 'date_format' ), $license_data->date_expiry )
+						date_i18n( get_option( 'date_format' ), strtotime( $license_data->date_expiry ) )
 					);
 				} else {
 					$license_data->message = __( 'The license expired and needs to be renewed to be updated.', 'wp-package-updater' );
 				}
-			} elseif (
-				isset( $license_data->status ) &&
-				'blocked' === $license_data->status
-			) {
+			} elseif ( isset( $license_data->status ) && 'blocked' === $license_data->status ) {
 				$license_data->message = __( 'The license is blocked and cannot be updated anymore. Please use another license key.', 'wp-package-updater' );
-			} elseif (
-				isset( $license_data->status ) &&
-				'pending' === $license_data->status
-			) {
+			} elseif ( isset( $license_data->status ) && 'pending' === $license_data->status ) {
 				$license_data->clear_key = true;
 				$license_data->message   = __( 'The license has not been activated and its status is stil pending. Please try again or use another license key.', 'wp-package-updater' );
-			} elseif (
-				isset( $license_data->status ) &&
-				'invalid' === $license_data->status
-			) {
+			} elseif ( isset( $license_data->status ) && 'invalid' === $license_data->status ) {
 				$license_data->clear_key = true;
 				$license_data->message   = __( 'The provided license key is invalid. Please use another license key.', 'wp-package-updater' );
 			} elseif ( isset( $license_data->license_key ) ) {
@@ -488,13 +467,6 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		protected function get_license_form() {
-
-			// @todo remove in 2.0
-			if ( get_option( 'license_key_' . $this->package_id ) ) {
-				update_option( 'license_key_' . $this->package_slug, get_option( 'license_key_' . $this->package_id ), true );
-				delete_option( 'license_key_' . $this->package_id );
-			}
-
 			$license      = get_option( 'license_key_' . $this->package_slug );
 			$package_id   = $this->package_id;
 			$package_slug = $this->package_slug;
