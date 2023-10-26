@@ -54,16 +54,16 @@ function dummy_plugin_run() {}
 add_action( 'plugins_loaded', 'dummy_plugin_run', 10, 0 );
 
 /** Enable plugin updates with license check **/
-// $dummy_plugin_updater = new WP_Package_Updater(
-// 	'https://server.anyape.com',
-// 	wp_normalize_path( __FILE__ ),
-// 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
-// 	true
-// );
-
-/** Enable plugin updates without license check **/
 $dummy_plugin_updater = new WP_Package_Updater(
 	'https://server.anyape.com',
 	wp_normalize_path( __FILE__ ),
 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
+	true
 );
+
+/** Enable plugin updates without license check **/
+// $dummy_plugin_updater = new WP_Package_Updater(
+// 	'https://server.anyape.com',
+// 	wp_normalize_path( __FILE__ ),
+// 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
+// );
