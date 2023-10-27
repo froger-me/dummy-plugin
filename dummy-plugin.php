@@ -67,3 +67,4 @@ $dummy_plugin_updater = new WP_Package_Updater(
 // 	wp_normalize_path( __FILE__ ),
 // 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
 // );
+
