@@ -396,17 +396,14 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		public function upgrader_process_complete( $upgrader_object, $options ) {
-			error_log( 'upgrader_process_complete ' );
 
 			if ( 'update' === $options['action'] ) {
 
 				if ( 'plugin' === $options['type'] && isset( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
 
-					error_log( print_r( $this->package_id . '/' . $this->package_id . '.php', true ) );
-
 					foreach ( $options['plugins'] as $plugin ) {
 
-						if ( $plugin === $this->package_id . '/' . $this->package_id . '.php' ) {
+						if ( $plugin === $this->package_id ) {
 							$this->restore_wppus_options();
 						}
 					}
@@ -416,7 +413,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 					foreach ( $options['themes'] as $theme ) {
 
-						if ( $theme === $this->package_id ) {
+						if ( $theme === $this->package_slug ) {
 							$this->restore_wppus_options();
 						}
 					}
@@ -623,11 +620,11 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		protected function save_wppus_options() {
-			update_option( 'wppus_' . $this->package_id . '_options', self::$json_options );
+			update_option( 'wppus_' . $this->package_slug . '_options', self::$json_options );
 		}
 
 		protected function restore_wppus_options() {
-			$wppus_options = get_option( 'wppus_' . $this->package_id . '_options' );
+			$wppus_options = get_option( 'wppus_' . $this->package_slug . '_options' );
 
 			error_log( 'Restoring options: ' . print_r( $wppus_options, true ) );
 
@@ -648,7 +645,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				);
 
 				$wp_filesystem->put_contents( $this->package_path . 'wppus.json', $wppus_json, FS_CHMOD_FILE );
-				delete_option( 'wppus_' . $this->package_id . '_options' );
+				delete_option( 'wppus_' . $this->package_slug . '_options' );
 			}
 		}
 
