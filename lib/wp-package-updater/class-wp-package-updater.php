@@ -402,7 +402,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 				if ( 'plugin' === $options['type'] && isset( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
 
-					error_log( print_r( $options, true ) );
+					error_log( print_r( $this->package_id . '/' . $this->package_id . '.php', true ) );
 
 					foreach ( $options['plugins'] as $plugin ) {
 
