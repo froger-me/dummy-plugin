@@ -145,9 +145,9 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ), 99, 1 );
 				add_action( 'admin_notices', array( $this, 'show_license_error_notice' ), 10, 0 );
 				add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
-				add_action( 'upgrader_process_complete', 'upgrader_process_complete', 10, 2 );
+				add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2 );
 
-				add_filter( 'upgrader_pre_install', 'upgrader_pre_install', 10, 2 );
+				add_filter( 'upgrader_pre_install', array( $this, 'upgrader_pre_install' ), 10, 2 );
 			}
 		}
 
