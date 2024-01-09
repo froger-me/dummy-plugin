@@ -24,28 +24,33 @@ use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\UpdateChecker;
 * where appropriate to enable updates with WP Packages Update Server.
 *
 * WARNING - READ FIRST:
-* Before deploying the plugin or theme, make sure to change the following value
-* - https://server.domain.tld  => In wppus.json ; the URL of the server where WP Packages Update Server is installed.
-* - $prefix_updater                 => Change this variable's name with your plugin or theme prefix
-**/
+*
+* Before deploying the plugin or theme, make sure to change the following values in wppus.json:
+* - server          => The URL of the server where WP Packages Update Server is installed ; required
+* - requireLicense  => Whether the package requires a license ; true or false ; optional
+*
+* Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
+*
 
-/** Uncomment for plugin updates **/
-// require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
+/** Use for plugin updates **/
+/* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
 
-/** Enable plugin updates **/
-// $prefix_updater = new WP_Package_Updater(
-// 	wp_normalize_path( __FILE__ ),
-// 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
-// );
+$prefix_updater = new WP_Package_Updater(
+	wp_normalize_path( __FILE__ ),
+	wp_normalize_path( plugin_dir_path( __FILE__ ) )
+);
+*/
 
-/** Uncomment for theme updates **/
-// require_once get_stylesheet_directory() . '/lib/wp-package-updater/class-wp-package-updater.php';
+/** Use for theme updates **/
+/* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
 
-/** Enable theme updates **/
-// $prefix_updater = new WP_Package_Updater(
-// 	wp_normalize_path( __FILE__ ),
-// 	get_stylesheet_directory(),
-// );
+$prefix_updater = new WP_Package_Updater(
+	wp_normalize_path( __FILE__ ),
+	get_stylesheet_directory()
+);
+*/
 
 /* ================================================================================================ */
 
@@ -63,8 +68,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		private $type;
 		private $use_license;
 		private $package_id;
-
-		private static $json_options;
+		private $json_options;
 
 		public function __construct( $package_file_path, $package_path ) {
 			global $wp_filesystem;
@@ -77,7 +81,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 			$this->package_path = trailingslashit( $package_path );
 
-			if ( ! $wp_filesystem->exists( $package_path . 'wppus.json' ) ) {
+			if ( ! $wp_filesystem->exists( $package_path . '/wppus.json' ) ) {
 				throw new RuntimeException(
 					sprintf(
 						'The package updater cannot find the wppus.json file in "%s". ',
@@ -543,16 +547,16 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				WP_Filesystem();
 			}
 
-			if ( ! isset( self::$json_options ) ) {
+			if ( ! isset( $this->json_options ) ) {
 				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
 
 				if ( $wppus_json ) {
-					self::$json_options = json_decode( $wppus_json, true );
+					$this->json_options = json_decode( $wppus_json, true );
 				}
 			}
 
-			if ( isset( self::$json_options[ $option ] ) ) {
-				return self::$json_options[ $option ];
+			if ( isset( $this->json_options[ $option ] ) ) {
+				return $this->json_options[ $option ];
 			}
 
 			return '';
@@ -567,17 +571,17 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				WP_Filesystem();
 			}
 
-			if ( ! isset( self::$json_options ) ) {
+			if ( ! isset( $this->json_options ) ) {
 				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
 
 				if ( $wppus_json ) {
-					self::$json_options = json_decode( $wppus_json, true );
+					$this->json_options = json_decode( $wppus_json, true );
 				}
 			}
 
-			self::$json_options[ $option ] = $value;
+			$this->json_options[ $option ] = $value;
 			$wppus_json                    = wp_json_encode(
-				self::$json_options,
+				$this->json_options,
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			);
 
@@ -593,25 +597,25 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				WP_Filesystem();
 			}
 
-			if ( ! isset( self::$json_options ) ) {
+			if ( ! isset( $this->json_options ) ) {
 				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
 
 				if ( $wppus_json ) {
-					self::$json_options = json_decode( $wppus_json, true );
+					$this->json_options = json_decode( $wppus_json, true );
 				}
 			}
 
 			$save = false;
 
-			if ( isset( self::$json_options[ $option ] ) ) {
+			if ( isset( $this->json_options[ $option ] ) ) {
 				$save = true;
 
-				unset( self::$json_options[ $option ] );
+				unset( $this->json_options[ $option ] );
 			}
 
 			if ( $save ) {
 				$wppus_json = wp_json_encode(
-					self::$json_options,
+					$this->json_options,
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 				);
 
@@ -628,15 +632,15 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				WP_Filesystem();
 			}
 
-			if ( ! isset( self::$json_options ) ) {
+			if ( ! isset( $this->json_options ) ) {
 				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
 
 				if ( $wppus_json ) {
-					self::$json_options = json_decode( $wppus_json, true );
+					$this->json_options = json_decode( $wppus_json, true );
 				}
 			}
 
-			update_option( 'wppus_' . $this->package_slug . '_options', self::$json_options );
+			update_option( 'wppus_' . $this->package_slug . '_options', $this->json_options );
 		}
 
 		protected function restore_wppus_options() {
