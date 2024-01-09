@@ -6,10 +6,10 @@ Description: Empty plugin to demonstrate the WP Package Updater.
 Version: 1.4.14
 Author: Alexandre Froger
 Author URI: https://froger.me/
-Icon1x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration-examples/assets/icon-128x128.png
-Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration-examples/assets/icon-256x256.png
-BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration-examples/assets/banner-1544x500.png
-BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration-examples/assets/banner-722x250.png
+Icon1x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-128x128.png
+Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-256x256.png
+BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png
+BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,17 +33,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
 
-/** Enable plugin updates with license check **/
+/** Enable plugin updates**/
 // $prefix_updater = new WP_Package_Updater(
-// 	'https://your-update-server.com',
-// 	wp_normalize_path( __FILE__ ),
-// 	wp_normalize_path( plugin_dir_path( __FILE__ ) ),
-// 	true
-// );
-
-/** Enable plugin updates without license check **/
-// $prefix_updater = new WP_Package_Updater(
-// 	'https://your-update-server.com',
 // 	wp_normalize_path( __FILE__ ),
 // 	wp_normalize_path( plugin_dir_path( __FILE__ ) )
 // );
