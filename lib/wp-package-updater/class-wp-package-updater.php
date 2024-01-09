@@ -426,7 +426,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			if ( isset( $hook_extra['plugin'] ) ) {
 				$plugin_to_update = $hook_extra['plugin'];
 
-				if ( $plugin_to_update === $this->package_id . '/' . $this->package_id . '.php' ) {
+				if ( $plugin_to_update === $this->package_id ) {
 					$this->save_wppus_options();
 				}
 			}
@@ -434,7 +434,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			if ( isset( $hook_extra['theme'] ) ) {
 				$theme_to_update = $hook_extra['theme'];
 
-				if ( $theme_to_update === $this->package_id ) {
+				if ( $theme_to_update === $this->package_slug ) {
 					$this->save_wppus_options();
 				}
 			}
