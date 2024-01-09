@@ -396,6 +396,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		public function upgrader_process_complete( $upgrader_object, $options ) {
+			error_log( 'upgrader_process_complete ' );
 
 			if ( 'update' === $options['action'] && 'plugin' === $options['type'] ) {
 
@@ -625,6 +626,8 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 		protected function restore_wppus_options() {
 			$wppus_options = get_option( 'wppus_' . $this->package_id . '_options' );
+
+			error_log( 'Restoring options: ' . print_r( $wppus_options, true ) );
 
 			if ( $wppus_options ) {
 				global $wp_filesystem;
