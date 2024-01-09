@@ -386,7 +386,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		public function show_license_error_notice() {
-			$error = get_option( 'licenseError' );
+			$error = $this->get_option( 'licenseError' );
 
 			if ( $error ) {
 				$class = 'license-error license-error-' . $this->package_slug . ' notice notice-error is-dismissible';
@@ -783,7 +783,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		protected function get_license_form() {
-			$license = get_option( 'licenseKey' );
+			$license = $this->get_option( 'licenseKey' );
 
 			ob_start();
 
