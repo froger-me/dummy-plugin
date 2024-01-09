@@ -398,9 +398,11 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		public function upgrader_process_complete( $upgrader_object, $options ) {
 			error_log( 'upgrader_process_complete ' );
 
-			if ( 'update' === $options['action'] && 'plugin' === $options['type'] ) {
+			if ( 'update' === $options['action'] ) {
 
 				if ( 'plugin' === $options['type'] && isset( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
+
+					error_log( print_r( $options, true ) );
 
 					foreach ( $options['plugins'] as $plugin ) {
 
