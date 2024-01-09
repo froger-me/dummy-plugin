@@ -34,10 +34,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
 
 /** Enable plugin updates**/
-// $prefix_updater = new WP_Package_Updater(
-// 	wp_normalize_path( __FILE__ ),
-// 	wp_normalize_path( plugin_dir_path( __FILE__ ) )
-// );
+$dummy_plugin_updater = new WP_Package_Updater(
+	wp_normalize_path( __FILE__ ),
+	wp_normalize_path( plugin_dir_path( __FILE__ ) )
+);
 
 /* ================================================================================================ */
 

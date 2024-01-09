@@ -63,7 +63,8 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		private $type;
 		private $use_license;
 		private $package_id;
-		private $json_options;
+
+		private static $json_options;
 
 		public function __construct( $package_file_path, $package_path ) {
 			global $wp_filesystem;
@@ -144,6 +145,9 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ), 99, 1 );
 				add_action( 'admin_notices', array( $this, 'show_license_error_notice' ), 10, 0 );
 				add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
+				add_action( 'upgrader_process_complete', 'upgrader_process_complete', 10, 2 );
+
+				add_filter( 'upgrader_pre_install', 'upgrader_pre_install', 10, 2 );
 			}
 		}
 
@@ -391,6 +395,53 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			}
 		}
 
+		public function upgrader_process_complete( $upgrader_object, $options ) {
+
+			if ( 'update' === $options['action'] && 'plugin' === $options['type'] ) {
+
+				if ( 'plugin' === $options['type'] && isset( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
+
+					foreach ( $options['plugins'] as $plugin ) {
+
+						if ( $plugin === $this->package_id . '/' . $this->package_id . '.php' ) {
+							$this->restore_wppus_options();
+						}
+					}
+				}
+
+				if ( 'theme' === $options['type'] && isset( $options['themes'] ) && is_array( $options['themes'] ) ) {
+
+					foreach ( $options['themes'] as $theme ) {
+
+						if ( $theme === $this->package_id ) {
+							$this->restore_wppus_options();
+						}
+					}
+				}
+			}
+		}
+
+		public function upgrader_pre_install( $_true, $hook_extra ) {
+
+			if ( isset( $hook_extra['plugin'] ) ) {
+				$plugin_to_update = $hook_extra['plugin'];
+
+				if ( $plugin_to_update === $this->package_id . '/' . $this->package_id . '.php' ) {
+					$this->save_wppus_options();
+				}
+			}
+
+			if ( isset( $hook_extra['theme'] ) ) {
+				$theme_to_update = $hook_extra['theme'];
+
+				if ( $theme_to_update === $this->package_id ) {
+					$this->save_wppus_options();
+				}
+			}
+
+			return $_true;
+		}
+
 		// Misc. -------------------------------------------------------
 
 		public function locate_template( $template_name, $load = false, $required_once = true ) {
@@ -565,6 +616,34 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				);
 
 				$wp_filesystem->put_contents( $this->package_path . 'wppus.json', $wppus_json, FS_CHMOD_FILE );
+			}
+		}
+
+		protected function save_wppus_options() {
+			update_option( 'wppus_' . $this->package_id . '_options', self::$json_options );
+		}
+
+		protected function restore_wppus_options() {
+			$wppus_options = get_option( 'wppus_' . $this->package_id . '_options' );
+
+			if ( $wppus_options ) {
+				global $wp_filesystem;
+
+				if ( ! isset( $wp_filesystem ) ) {
+					include_once ABSPATH . 'wp-admin/includes/file.php';
+
+					WP_Filesystem();
+				}
+
+				$server                  = $this->get_option( 'server' );
+				$wppus_options['server'] = $server;
+				$wppus_json              = wp_json_encode(
+					$wppus_options,
+					JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+				);
+
+				$wp_filesystem->put_contents( $this->package_path . 'wppus.json', $wppus_json, FS_CHMOD_FILE );
+				delete_option( 'wppus_' . $this->package_id . '_options' );
 			}
 		}
 
