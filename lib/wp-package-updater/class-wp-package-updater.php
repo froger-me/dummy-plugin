@@ -87,7 +87,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			}
 
 			$update_server_url = $this->get_option( 'server' );
-			$use_license       = ! empty( $this->get_option( 'licenseKey' ) );
+			$use_license       = ! empty( $this->get_option( 'requireLicense' ) );
 
 			$this->set_type();
 
