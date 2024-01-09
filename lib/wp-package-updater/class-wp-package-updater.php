@@ -620,6 +620,22 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		protected function save_wppus_options() {
+			global $wp_filesystem;
+
+			if ( ! isset( $wp_filesystem ) ) {
+				include_once ABSPATH . 'wp-admin/includes/file.php';
+
+				WP_Filesystem();
+			}
+
+			if ( ! isset( self::$json_options ) ) {
+				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
+
+				if ( $wppus_json ) {
+					self::$json_options = json_decode( $wppus_json, true );
+				}
+			}
+
 			update_option( 'wppus_' . $this->package_slug . '_options', self::$json_options );
 		}
 
