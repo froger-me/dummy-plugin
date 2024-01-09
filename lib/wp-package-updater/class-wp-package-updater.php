@@ -636,15 +636,11 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				}
 			}
 
-			error_log( 'Saving options in wppus_' . $this->package_slug . '_options: ' . print_r( self::$json_options, true ) );
-
 			update_option( 'wppus_' . $this->package_slug . '_options', self::$json_options );
 		}
 
 		protected function restore_wppus_options() {
 			$wppus_options = get_option( 'wppus_' . $this->package_slug . '_options' );
-
-			error_log( 'Restoring options from wppus_' . $this->package_slug . '_options: ' . print_r( $wppus_options, true ) );
 
 			if ( $wppus_options ) {
 				global $wp_filesystem;
