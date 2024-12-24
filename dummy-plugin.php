@@ -10,6 +10,7 @@ Icon1x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/ma
 Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-256x256.png
 BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png
 BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png
+Extends: dummy-plugin
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
