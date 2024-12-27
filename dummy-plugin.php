@@ -11,6 +11,7 @@ Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/ma
 BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png
 BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png
 Licensed With: dummy-plugin
+test: test1
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
