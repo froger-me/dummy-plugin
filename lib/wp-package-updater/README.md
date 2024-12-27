@@ -7,61 +7,31 @@ Used to enable updates for plugins and themes distributed via WP Packages Update
 ### Requirements
 
 The library must sit in a `lib` folder at the root of the plugin or theme directory.
+A file `wppus.json` must be present in the root of the plugin or theme directory.
 
-Before deploying the plugin or theme, make sure to change the following value:
-- `https://your-update-server.com`  => The URL of the server where WP Packages Update Server is installed.
-- `$prefix_updater`                 => Change this variable's name with your plugin or theme prefix
 
-### Code to include in main plugin file
+Before deploying the plugin or theme, make sure to change the `$prefix_updater` with your plugin or theme prefix.
 
-#### Simple update
+Before deploying the plugin or theme, make sure to change the following value in `wppus.json`:
+- `server`          => The URL of the server where WP Packages Update Server is installed ; **required**
+- `requireLicense`  => Whether the package requires a license ; `true` or `false` ; optional
+
+### Code to include in main plugin file or functions.php
 
 ```php
-require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
+require_once __DIR__ . '/lib/wp-package-updater/class-wp-package-updater.php';
 
 $prefix_updater = new WP_Package_Updater(
-  'https://your-update-server.com',
-  wp_normalize_path( __FILE__ ),
-  wp_normalize_path( plugin_dir_path( __FILE__ ) ),
+	wp_normalize_path( __FILE__ ),
+	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
 );
 ```
 
-#### Update with license check
+### Content of `wppus.json`
 
-```php
-require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
-
-$prefix_updater = new WP_Package_Updater(
-  'https://your-update-server.com',
-  wp_normalize_path( __FILE__ ),
-  wp_normalize_path( plugin_dir_path( __FILE__ ) ),
-  true
-);
-```
-
-### Code to include in functions.php
-
-#### Simple update
-
-```php
-require_once get_stylesheet_directory() . '/lib/wp-package-updater/class-wp-package-updater.php';
-
-$prefix_updater = new WP_Package_Updater(
-  'https://your-update-server.com',
-  wp_normalize_path( __FILE__ ),
-  get_stylesheet_directory(),
-);
-```
-
-#### Update with license check
-
-```php
-require_once get_stylesheet_directory() . '/lib/wp-package-updater/class-wp-package-updater.php';
-
-$prefix_updater = new WP_Package_Updater(
-  'https://your-update-server.com',
-  wp_normalize_path( __FILE__ ),
-  get_stylesheet_directory(),
-  true
-);
+```json
+{
+   "server": "https://server.domain.tld/",
+   "requireLicense": false
+}
 ```
