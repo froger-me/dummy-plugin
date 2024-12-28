@@ -21,12 +21,15 @@ use YahnisElsts\PluginUpdateChecker\v5p3\PucFactory;
 *
 * WARNING - READ FIRST:
 *
-* Before deploying the plugin or theme, make sure to change the following values in wppus.json:
-* - server          => The URL of the server where WP Packages Update Server is installed ; required
-* - requireLicense  => Whether the package requires a license ; true or false ; optional
+* Before deploying the plugin or theme, make sure to change the value of `server` in wppus.json
+* with the URL of the server where WP Packages Update Server is installed.
 *
 * Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
 *
+* If the plugin or theme requires a license, change the header `Require License` to either `yes` or `true`
+* in the main plugin file or the `style.css` file.
+*
+**/
 
 /** Enable updates **/
 /* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -52,7 +55,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		private $package_url;
 		private $update_checker;
 		private $type;
-		private $use_license;
+		private $require_license;
 		private $package_id;
 		private $json_options;
 
@@ -76,8 +79,9 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				);
 			}
 
+			$info               = array();
 			$update_server_url  = $this->get_option( 'server' );
-			$use_license        = ! empty( $this->get_option( 'requireLicense' ) );
+			$file_path          = '';
 			$package_path_parts = explode( '/', $package_path );
 
 			$this->set_type();
@@ -85,18 +89,37 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			if ( 'Plugin' === $this->type ) {
 				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 2 ];
 				$this->package_url = plugin_dir_url( $package_file_path );
+				$file_path         = $package_file_path;
 			} elseif ( 'Theme' === $this->type ) {
 				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 1 ];
 				$this->package_url = trailingslashit( get_theme_root_uri() ) . $package_slug;
+				$file_path         = dirname( $package_file_path ) . '/style.css';
 			}
 
+			if ( function_exists( 'get_file_data' ) ) {
+				$info = get_file_data(
+					$file_path,
+					array(
+						'licensed_with'   => 'Licensed With',
+						'require_license' => 'Require License',
+					)
+				);
+			}
+
+			$require_license         = (
+				isset( $info['require_license'] ) &&
+				(
+					strtolower( $info['require_license'] ) === 'yes' ||
+					strtolower( $info['require_license'] ) === 'true'
+				)
+			);
 			$package_file_path_parts = explode( '/', $package_file_path );
 			$package_id_parts        = array_slice( $package_file_path_parts, -2, 2 );
 			$package_id              = implode( '/', $package_id_parts );
 			$this->package_id        = $package_id;
 			$this->update_server_url = trailingslashit( $update_server_url ) . 'wppus-update-api/';
 			$this->package_slug      = $package_slug;
-			$this->use_license       = $use_license;
+			$this->require_license   = $require_license;
 			$metadata_url            = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
 			$metadata_url           .= rawurlencode( $this->package_slug );
 
@@ -108,22 +131,10 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 			$this->update_checker->addQueryArgFilter( array( $this, 'filter_update_checks' ) );
 
-			if ( $this->use_license ) {
+			if ( $this->require_license ) {
 				$this->license_server_url = trailingslashit( $update_server_url ) . 'wppus-license-api/';
-				$file_path                = '';
-				$info                     = array();
 
 				$this->update_checker->addResultFilter( array( $this, 'set_license_error_notice_content' ) );
-
-				if ( 'Plugin' === $this->type ) {
-					$file_path = $package_file_path;
-				} elseif ( 'Theme' === $this->type ) {
-					$file_path = dirname( $package_file_path ) . '/style.css';
-				}
-
-				if ( function_exists( 'get_file_data' ) ) {
-					$info = get_file_data( $file_path, array( 'licensed_with' => 'Licensed With' ) );
-				}
 
 				if ( ! isset( $info['licensed_with'] ) || empty( $info['licensed_with'] ) ) {
 
@@ -299,7 +310,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				$query_args['licensed_with'] = $licensed_with;
 				$license                     = $this->get_option( 'licenseKey', $licensed_with );
 				$license_signature           = $this->get_option( 'licenseSignature', $licensed_with );
-			} elseif ( $this->use_license ) {
+			} elseif ( $this->require_license ) {
 				$license           = $this->get_option( 'licenseKey' );
 				$license_signature = $this->get_option( 'licenseSignature' );
 			}
