@@ -10,9 +10,7 @@ Icon1x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/ma
 Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-256x256.png
 BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png
 BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png
-Require License: yes
-Licensed With: dummy-plugin
-test: test3
+Require License: no
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,14 +22,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 /* ================================================================================================ */
 
 /**
-* Selectively uncomment the sections below to enable updates with WP Packages Update Server.
-*
 * WARNING - READ FIRST:
-* Before deploying the plugin or theme, make sure to change the following value
-* - https://your-update-server.com  => The URL of the server where WP Packages Update Server is installed
-* - $prefix_updater                 => Replace "prefix" in this variable's name with a unique plugin prefix
 *
-* @see https://github.com/froger-me/wp-package-updater
+* Before deploying the plugin or theme, make sure to change the value of `server` in wppus.json
+* with the URL of the server where WP Packages Update Server is installed.
+*
+* Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
+*
+* If the plugin or theme requires a license, change the header `Require License` to either `yes`, `true`, or `1`
+* in the main plugin file or the `style.css` file.
+*
+* If the plugin or theme uses the license of another plugin or theme, add the header `Licensed With`
+* with the slug of the plugin or theme that provides the license in the main plugin file or the `style.css` file.
+*
+* @see https://github.com/froger-me/wp-packages-update-server/tree/main/integration/dummy-plugin/lib/wp-package-updater
 **/
 
 require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';

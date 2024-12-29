@@ -26,8 +26,11 @@ use YahnisElsts\PluginUpdateChecker\v5p3\PucFactory;
 *
 * Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
 *
-* If the plugin or theme requires a license, change the header `Require License` to either `yes` or `true`
+* If the plugin or theme requires a license, change the header `Require License` to either `yes`, `true`, or `1`
 * in the main plugin file or the `style.css` file.
+*
+* If the plugin or theme uses the license of another plugin or theme, add the header `Licensed With`
+* with the slug of the plugin or theme that provides the license in the main plugin file or the `style.css` file.
 *
 **/
 
